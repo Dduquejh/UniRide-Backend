@@ -16,6 +16,7 @@ async function bootstrap() {
     .setDescription('The UniRide API')
     .setVersion('1.0')
     .addTag('uniride')
+    .addBearerAuth()
     .build();
   // Activar CORS para cualquier origen
   app.enableCors({

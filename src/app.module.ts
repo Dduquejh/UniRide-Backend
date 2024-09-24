@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CommunitiesModule } from './communities/communities.module';
+import { ZonesModule } from './zones/zones.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CommunitiesModule } from './communities/communities.module';
     }),
     AuthModule,
     CommunitiesModule,
+    ZonesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
