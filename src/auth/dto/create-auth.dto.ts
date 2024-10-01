@@ -5,16 +5,13 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { IsEiaEmail } from '../validator/is-eia-email.validator';
 
 export class CreateAuthDto {
-  @IsEmail()
+  @IsEiaEmail()
   email: string;
 
-  @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message:
-      'The password must have a Uppercase, lowercase letter and a number',
-  })
-  @MinLength(12)
+  @MinLength(6)
   @MaxLength(24)
   password: string;
 
@@ -23,6 +20,9 @@ export class CreateAuthDto {
   fullName: string;
 
   @IsString()
+  @Matches(/^[0-9]+$/, {
+    message: 'El teléfono solo puede contener números',
+  })
   @MaxLength(15)
   phone: string;
 }
