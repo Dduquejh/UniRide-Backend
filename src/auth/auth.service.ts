@@ -46,10 +46,14 @@ export class AuthService {
       const { email, password } = loginDot;
       const user = await this.userRepository.findOneBy({ email });
 
-      if (!bcrypt.compareSync(password, user.password)) {
+      if (!user || !bcrypt.compareSync(password, user.password)) {
         throw new UnauthorizedException('Credenciales inválidas');
       }
-      const payload: JwtPayload = { email, fullName: user.fullName };
+      const payload: JwtPayload = {
+        id: user.id,
+        email,
+        fullName: user.fullName,
+      };
       const token = await this.generateToken(payload);
       return { email, token };
     } catch (e) {
