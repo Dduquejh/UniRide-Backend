@@ -1,4 +1,11 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Trip } from 'src/trips/entities/trip.entity';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -35,4 +42,7 @@ export class User {
       .map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   }
+
+  @OneToMany(() => Trip, (trip) => trip.user)
+  trips: Trip[];
 }

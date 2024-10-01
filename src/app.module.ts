@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CommunitiesModule } from './communities/communities.module';
 import { ZonesModule } from './zones/zones.module';
+import { TripsModule } from './trips/trips.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ZonesModule } from './zones/zones.module';
     AuthModule,
     CommunitiesModule,
     ZonesModule,
+    TripsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
