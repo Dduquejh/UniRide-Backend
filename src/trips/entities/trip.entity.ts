@@ -1,4 +1,5 @@
 import { User } from 'src/auth/entities/auth.entity';
+import { Zone } from 'src/zones/entities/zone.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -26,4 +27,10 @@ export class Trip {
     onDelete: 'CASCADE',
   })
   user: User;
+
+  @ManyToOne(() => Zone, (zone) => zone.trips, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  zone: Zone;
 }

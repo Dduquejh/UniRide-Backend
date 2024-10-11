@@ -23,4 +23,7 @@ export class CreateTripDto {
 
   @IsNotEmpty()
   userId: string; // Agregamos userId para relacionar con el usuario que crea el viaje
+
+  @IsNotEmpty()
+  zoneId: string; // Agregamos zoneId para relacionar con la zona del viaje
 }

@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Trip } from './entities/trip.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/auth/entities/auth.entity';
+import { Zone } from 'src/zones/entities/zone.entity';
 
 @Injectable()
 export class TripsService {
@@ -13,16 +14,25 @@ export class TripsService {
     private readonly tripRepository: Repository<Trip>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Zone)
+    private readonly zoneRepository: Repository<Zone>,
   ) {}
 
   async create(createTripDto: CreateTripDto) {
     const user = await this.userRepository.findOneBy({
       id: createTripDto.userId,
     });
+
+    const zone = await this.zoneRepository.findOneBy({
+      id: createTripDto.zoneId,
+    });
     if (!user) {
       throw new NotFoundException(`User #${createTripDto.userId} not found`);
+    } else if (!zone) {
+      throw new NotFoundException(`Zone #${createTripDto.zoneId} not found`);
     }
-    const trip = this.tripRepository.create({ ...createTripDto, user });
+
+    const trip = this.tripRepository.create({ ...createTripDto, user, zone });
     await this.tripRepository.save(trip);
     return trip;
   }

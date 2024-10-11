@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Trip } from 'src/trips/entities/trip.entity';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Zone {
@@ -10,4 +11,7 @@ export class Zone {
 
   @Column('text')
   imageSource: string;
+
+  @OneToMany(() => Trip, (trip) => trip.zone)
+  trips: Trip[];
 }

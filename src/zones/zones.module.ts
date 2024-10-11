@@ -9,6 +9,6 @@ import { AuthModule } from 'src/auth/auth.module';
   controllers: [ZonesController],
   providers: [ZonesService],
   imports: [TypeOrmModule.forFeature([Zone]), AuthModule],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule.forFeature([Zone])],
 })
 export class ZonesModule {}
