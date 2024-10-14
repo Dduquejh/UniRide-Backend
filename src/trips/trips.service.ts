@@ -65,4 +65,40 @@ export class TripsService {
     this.tripRepository.delete(trip);
     return trip;
   }
+
+  async searchTrips(
+    zoneId: string,
+    fromOrTo?: string,
+    date?: string,
+    hour?: string,
+  ) {
+    const queryBuilder = this.tripRepository
+      .createQueryBuilder('trip')
+      .leftJoinAndSelect('trip.user', 'user')
+      .where('trip.zoneId = :zoneId', { zoneId });
+
+    if (fromOrTo) {
+      queryBuilder.andWhere('trip.fromOrTo = :fromOrTo', { fromOrTo });
+    }
+
+    if (date) {
+      queryBuilder.andWhere('trip.date = :date', { date });
+    }
+
+    if (hour) {
+      queryBuilder.andWhere('trip.hour = :hour', { hour });
+    }
+    queryBuilder
+      .orderBy("TO_DATE(trip.date, 'DD/MM/YYYY')", 'ASC')
+      .addOrderBy('trip.hour', 'ASC');
+
+    const trips = await queryBuilder.getMany();
+
+    const tripsWithUserNames = trips.map((trip) => ({
+      ...trip,
+      userName: trip.user.fullName,
+    }));
+
+    return tripsWithUserNames;
+  }
 }
