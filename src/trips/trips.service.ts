@@ -101,4 +101,25 @@ export class TripsService {
 
     return tripsWithUserNames;
   }
+
+  async findTripsByUser(userId: string) {
+    const trips = await this.tripRepository
+      .createQueryBuilder('trip')
+      .leftJoinAndSelect('trip.user', 'user')
+      .where('trip.userId = :userId', { userId })
+      .orderBy("TO_DATE(trip.date, 'DD/MM/YYYY')", 'ASC')
+      .addOrderBy('trip.hour', 'ASC')
+      .getMany();
+
+    if (!trips || trips.length === 0) {
+      throw new NotFoundException(`No trips found for user #${userId}`);
+    }
+
+    const tripsWithUserNames = trips.map((trip) => ({
+      ...trip,
+      userName: trip.user.fullName,
+    }));
+
+    return tripsWithUserNames;
+  }
 }

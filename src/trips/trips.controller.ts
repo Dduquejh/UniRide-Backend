@@ -11,6 +11,7 @@ import { TripsService } from './trips.service';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { searchTripsDto } from './dto/search-trips.dto';
+import { searchTripsUserDto } from './dto/search-trips-user.dto';
 
 @Controller('trips')
 export class TripsController {
@@ -49,6 +50,12 @@ export class TripsController {
       searchTripsDto.date,
       searchTripsDto.hour,
     );
+    return trips;
+  }
+
+  @Post('findTripsByUser')
+  findTripsByUser(@Body() searchTripsUserDto: searchTripsUserDto) {
+    const trips = this.tripsService.findTripsByUser(searchTripsUserDto.userId);
     return trips;
   }
 }
