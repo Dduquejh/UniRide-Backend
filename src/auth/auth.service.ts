@@ -66,8 +66,12 @@ export class AuthService {
     return `This action returns all auth`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findOne(id: string) {
+    const auth = await this.userRepository.findOneBy({ id: id });
+    if (!auth) {
+      throw new UnauthorizedException(`Auth #${id} not found`);
+    }
+    return auth;
   }
 
   update(id: number, updateAuthDto: UpdateAuthDto) {
