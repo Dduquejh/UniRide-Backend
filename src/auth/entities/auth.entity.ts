@@ -1,3 +1,4 @@
+import { Reservation } from 'src/reservations/entities/reservation.entity';
 import { Trip } from 'src/trips/entities/trip.entity';
 import {
   BeforeInsert,
@@ -45,4 +46,7 @@ export class User {
 
   @OneToMany(() => Trip, (trip) => trip.user)
   trips: Trip[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations: Reservation[];
 }

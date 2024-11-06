@@ -62,7 +62,7 @@ export class TripsService {
 
   async remove(id: number) {
     const trip = await this.findOne(id);
-    this.tripRepository.delete(trip);
+    this.tripRepository.delete(trip.id);
     return trip;
   }
 
