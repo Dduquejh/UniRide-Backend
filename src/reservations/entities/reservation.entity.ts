@@ -1,12 +1,6 @@
 import { User } from 'src/auth/entities/auth.entity';
 import { Trip } from 'src/trips/entities/trip.entity';
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Reservation {
@@ -27,12 +21,4 @@ export class Reservation {
 
   @Column('int')
   reservedSeats: number;
-
-  @BeforeInsert()
-  async decresaseAvailableSeats() {
-    if (this.trip.seats < this.reservedSeats) {
-      throw new Error('Not enough available seats');
-    }
-    this.trip.seats -= this.reservedSeats;
-  }
 }

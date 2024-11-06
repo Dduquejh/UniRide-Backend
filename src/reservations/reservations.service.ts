@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './entities/reservation.entity';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Trip } from 'src/trips/entities/trip.entity';
 import { User } from 'src/auth/entities/auth.entity';
 
@@ -15,7 +19,8 @@ export class ReservationsService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Trip)
-    private readonly zoneRepository: Repository<Trip>,
+    private readonly tripRepository: Repository<Trip>,
+    private readonly dataSource: DataSource,
   ) {}
 
   create(createReservationDto: CreateReservationDto) {
@@ -40,30 +45,37 @@ export class ReservationsService {
 
   async reserveTrip(userId: string, tripId: number, seats: number) {
     const user = await this.userRepository.findOneBy({ id: userId });
-    const trip = await this.zoneRepository.findOneBy({ id: tripId });
+    if (!user) throw new NotFoundException('User not found');
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const trip = await this.tripRepository.findOneBy({ id: tripId });
+    if (!trip) throw new NotFoundException('Trip not found');
 
-    if (!trip) {
-      throw new Error('Trip not found');
-    }
+    if (trip.seats < seats)
+      throw new ConflictException('Not enough available seats');
 
-    if (trip.seats < seats) {
-      throw new Error('Not enough available seats');
-    }
+    return this.dataSource.transaction(async (manager) => {
+      // Verificamos los asientos nuevamente dentro de la transacción
+      const existingTrip = await manager.findOne(Trip, {
+        where: { id: tripId },
+        lock: { mode: 'pessimistic_write' },
+      });
 
-    trip.seats -= seats;
-    await this.zoneRepository.save(trip);
+      if (!existingTrip || existingTrip.seats < seats) {
+        throw new ConflictException('Seats are no longer available');
+      }
 
-    const reservation = this.reservationRepository.create({
-      user,
-      trip,
-      reservedSeats: seats,
+      // Reducimos la cantidad de asientos disponibles
+      existingTrip.seats -= seats;
+      await manager.save(existingTrip); // Guardamos el viaje con los asientos actualizados
+
+      // Creamos la reserva
+      const reservation = this.reservationRepository.create({
+        user,
+        trip: existingTrip,
+        reservedSeats: seats,
+      });
+
+      return manager.save(reservation); // Guardamos la reserva
     });
-
-    await this.reservationRepository.save(reservation);
-    return reservation;
   }
 }
