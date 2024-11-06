@@ -22,6 +22,9 @@ export class Trip {
   @Column('text')
   description: string;
 
+  @Column('text')
+  plate: string;
+
   @ManyToOne(() => User, (user) => user.trips, {
     nullable: false,
     onDelete: 'CASCADE',

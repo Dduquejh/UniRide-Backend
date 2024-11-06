@@ -26,4 +26,8 @@ export class CreateTripDto {
 
   @IsNotEmpty()
   zoneId: string; // Agregamos zoneId para relacionar con la zona del viaje
+
+  @IsString()
+  @IsNotEmpty()
+  plate: string;
 }
