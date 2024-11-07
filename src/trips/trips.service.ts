@@ -75,6 +75,7 @@ export class TripsService {
     const queryBuilder = this.tripRepository
       .createQueryBuilder('trip')
       .leftJoinAndSelect('trip.user', 'user')
+      .leftJoinAndSelect('trip.zone', 'zone')
       .where('trip.zoneId = :zoneId', { zoneId });
 
     if (fromOrTo) {
@@ -106,6 +107,7 @@ export class TripsService {
     const trips = await this.tripRepository
       .createQueryBuilder('trip')
       .leftJoinAndSelect('trip.user', 'user')
+      .leftJoinAndSelect('trip.zone', 'zone')
       .where('trip.userId = :userId', { userId })
       .orderBy("TO_DATE(trip.date, 'DD/MM/YYYY')", 'ASC')
       .addOrderBy('trip.hour', 'ASC')
