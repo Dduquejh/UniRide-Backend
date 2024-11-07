@@ -64,6 +64,17 @@ export class ReservationsService {
         throw new ConflictException('Seats are no longer available');
       }
 
+      // Verificamos si el usuario ya tiene una reserva para este viaje
+      const existingReservation = await manager.findOne(Reservation, {
+        where: { user: { id: userId }, trip: { id: tripId } },
+      });
+
+      if (existingReservation) {
+        throw new ConflictException(
+          'You already have a reservation for this trip',
+        );
+      }
+
       // Reducimos la cantidad de asientos disponibles
       existingTrip.seats -= seats;
       await manager.save(existingTrip); // Guardamos el viaje con los asientos actualizados
@@ -76,6 +87,41 @@ export class ReservationsService {
       });
 
       return manager.save(reservation); // Guardamos la reserva
+    });
+  }
+
+  async cancelReservation(userId: string, tripId: number) {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException('User not found');
+
+    const trip = await this.tripRepository.findOneBy({ id: tripId });
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    return this.dataSource.transaction(async (manager) => {
+      // Verificamos si existe la reserva
+      const existingReservation = await manager.findOne(Reservation, {
+        where: { user: { id: userId }, trip: { id: tripId } },
+      });
+
+      if (!existingReservation) {
+        throw new NotFoundException('Reservation not found');
+      }
+
+      // Actualizamos la cantidad de asientos disponibles
+      const existingTrip = await manager.findOne(Trip, {
+        where: { id: tripId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!existingTrip) throw new NotFoundException('Trip not found');
+
+      existingTrip.seats += existingReservation.reservedSeats; // Restauramos los asientos
+      await manager.save(existingTrip); // Guardamos el viaje con los asientos actualizados
+
+      // Eliminamos la reserva
+      await manager.remove(existingReservation); // Eliminamos la reserva
+
+      return { message: 'Reservation cancelled successfully' };
     });
   }
 }

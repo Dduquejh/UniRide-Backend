@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -50,5 +51,22 @@ export class ReservationsController {
     @Body('seats') seats: number,
   ) {
     return this.reservationsService.reserveTrip(userId, tripId, seats);
+  }
+
+  @Post('cancel')
+  async cancelReservation(
+    @Body('userId') userId: string,
+    @Body('tripId') tripId: number,
+  ) {
+    try {
+      const result = await this.reservationsService.cancelReservation(
+        userId,
+        tripId,
+      );
+      return result;
+    } catch (error) {
+      // Si ocurre un error, se lanza una excepción adecuada
+      throw new NotFoundException(error.message);
+    }
   }
 }

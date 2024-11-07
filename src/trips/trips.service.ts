@@ -124,4 +124,42 @@ export class TripsService {
 
     return tripsWithUserNames;
   }
+
+  async findTripsReservedByUser(userId: string) {
+    const trips = await this.tripRepository
+      .createQueryBuilder('trip')
+      .leftJoinAndSelect('trip.reservations', 'reservation') // Unimos las reservas al viaje
+      .leftJoinAndSelect('reservation.user', 'user') // Unimos el usuario de la reserva
+      .leftJoinAndSelect('trip.zone', 'zone') // Unimos la zona del viaje
+      .leftJoinAndSelect('trip.user', 'creator') // Unimos al creador del viaje
+      .where('reservation.userId = :userId', { userId }) // Filtramos por el usuario que hizo la reserva
+      .orderBy("TO_DATE(trip.date, 'DD/MM/YYYY')", 'ASC')
+      .addOrderBy('trip.hour', 'ASC')
+      .getMany();
+
+    if (!trips || trips.length === 0) {
+      throw new NotFoundException(
+        `No reserved trips found for user #${userId}`,
+      );
+    }
+
+    const tripsWithReservations = trips.map((trip) => {
+      // Obtener solo las reservas que pertenecen al usuario
+      const userReservations = trip.reservations.filter(
+        (reservation) => reservation.user.id === userId,
+      );
+
+      return {
+        ...trip,
+        userName: trip.user?.fullName || 'Unknown User', // Usamos el creador del viaje
+        userReservations, // Aquí añadimos las reservas del usuario
+        reservedSeats: userReservations.reduce(
+          (total, reservation) => total + reservation.reservedSeats,
+          0,
+        ), // Total de asientos reservados por el usuario
+      };
+    });
+
+    return tripsWithReservations;
+  }
 }
