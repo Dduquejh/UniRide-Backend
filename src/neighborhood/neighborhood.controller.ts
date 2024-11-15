@@ -42,4 +42,9 @@ export class NeighborhoodController {
   remove(@Param('id') id: string) {
     return this.neighborhoodService.remove(+id);
   }
+
+  @Get('search/:name')
+  searchNeighborhoodsByName(@Param('name') name: string) {
+    return this.neighborhoodService.searchNeighborhoodsByName(name);
+  }
 }

@@ -3,7 +3,7 @@ import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
 import { UpdateNeighborhoodDto } from './dto/update-neighborhood.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Neighborhood } from './entities/neighborhood.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Zone } from 'src/zones/entities/zone.entity';
 
 @Injectable()
@@ -63,5 +63,19 @@ export class NeighborhoodService {
     const neighborhood = await this.findOne(id);
     this.neighborhoodRepository.delete(neighborhood.id);
     return neighborhood;
+  }
+
+  async searchNeighborhoodsByName(name: string) {
+    const neighborhoods = await this.neighborhoodRepository
+      .createQueryBuilder('neighborhood')
+      .leftJoinAndSelect('neighborhood.zone', 'zone')
+      .where('neighborhood.name ILIKE :name', { name: `%${name}%` })
+      .getMany();
+
+    if (neighborhoods.length === 0) {
+      throw new NotFoundException(`Neighborhood with name ${name} not found`);
+    }
+    const zones = neighborhoods.map((neighborhood) => neighborhood.zone);
+    return zones;
   }
 }
