@@ -1,6 +1,13 @@
 import { User } from 'src/auth/entities/auth.entity';
+import { Reservation } from 'src/reservations/entities/reservation.entity';
 import { Zone } from 'src/zones/entities/zone.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Trip {
@@ -22,6 +29,9 @@ export class Trip {
   @Column('text')
   description: string;
 
+  @Column('text')
+  plate: string;
+
   @ManyToOne(() => User, (user) => user.trips, {
     nullable: false,
     onDelete: 'CASCADE',
@@ -33,4 +43,7 @@ export class Trip {
     onDelete: 'CASCADE',
   })
   zone: Zone;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.trip)
+  reservations: Reservation[];
 }

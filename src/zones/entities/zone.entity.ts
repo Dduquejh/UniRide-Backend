@@ -1,3 +1,4 @@
+import { Neighborhood } from 'src/neighborhood/entities/neighborhood.entity';
 import { Trip } from 'src/trips/entities/trip.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
@@ -14,4 +15,7 @@ export class Zone {
 
   @OneToMany(() => Trip, (trip) => trip.zone)
   trips: Trip[];
+
+  @OneToMany(() => Neighborhood, (neighborhood) => neighborhood.zone)
+  neighborhoods: Neighborhood[];
 }

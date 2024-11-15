@@ -43,7 +43,7 @@ export class ZonesService {
 
   async remove(id: string) {
     const zone = await this.findOne(id);
-    this.zoneRepository.delete(zone);
+    this.zoneRepository.delete(zone.id);
     return zone;
   }
 }

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -57,5 +58,16 @@ export class TripsController {
   findTripsByUser(@Body() searchTripsUserDto: searchTripsUserDto) {
     const trips = this.tripsService.findTripsByUser(searchTripsUserDto.userId);
     return trips;
+  }
+
+  @Get('reserved/:userId')
+  async findTripsReservedByUser(@Param('userId') userId: string) {
+    try {
+      // Llamamos al servicio para obtener los viajes reservados por el usuario
+      return await this.tripsService.findTripsReservedByUser(userId);
+    } catch (error) {
+      // En caso de error (por ejemplo, si no se encuentran viajes), lanzamos una excepción
+      throw new NotFoundException(error.message);
+    }
   }
 }

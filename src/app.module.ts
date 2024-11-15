@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { CommunitiesModule } from './communities/communities.module';
 import { ZonesModule } from './zones/zones.module';
 import { TripsModule } from './trips/trips.module';
+import { ReservationsModule } from './reservations/reservations.module';
+import { NeighborhoodModule } from './neighborhood/neighborhood.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { TripsModule } from './trips/trips.module';
     CommunitiesModule,
     ZonesModule,
     TripsModule,
+    ReservationsModule,
+    NeighborhoodModule,
   ],
   controllers: [AppController],
   providers: [AppService],
